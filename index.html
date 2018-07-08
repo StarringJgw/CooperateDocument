@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        textarea {
+            width: 50vw;
+            height: 50vh;
+        }
+    </style>
+</head>
+
+
+<body>
+    <h1>text</h1>
+    <button id="getText">getText</button>
+    <button id="submit">submit</button>
+    <textarea id="textArea1"></textarea>
+    <script>
+        document.getElementById("getText").addEventListener("click", getText, false);
+        document.getElementById("submit").addEventListener("click", submit, false);
+        setInterval("submit()", 1000);
+
+        function getText() {
+            console.log("getText");
+            fetch("http://localhost:1109/getText", {
+                method: 'GET'
+            }).then(res => res.json().then(data => {
+                document.getElementById('textArea1').value = data;
+            }))
+        }
+
+        function submit() {
+            var data = {
+                content: document.getElementById("textArea1").value,
+            };
+            fetch("http://localhost:1109/submit", {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: new Headers({
+                    'Content-type': 'application/json'
+                })
+            }).then(res => console.log(res))
+        }
+    </script>
+</body>
+
+</html>
