@@ -19,14 +19,37 @@
     <script>
         document.getElementById("getText").addEventListener("click", getText, false);
         document.getElementById("submit").addEventListener("click", submit, false);
-        setInterval("submit()", 1000);
+        var steps = new Object();
+        steps.action = new Array();
+        getText();
+        setInterval(up, 1000);
+
+        async function up() {
+            await submit();
+        }
+
+        function note() {
+            console.log("oninput");
+        }
+
+        document.getElementById("textArea1").oninput = (e) => {
+            console.log(e);
+            console.log(e.inputType + e.data + "before " + (document.getElementById("textArea1").selectionStart));
+            steps.action.push({
+                type: e.inputType.slice(0, 1),
+                index: document.getElementById("textArea1").selectionStart,
+                content: e.data
+            });
+            console.log(steps);
+        }
 
         function getText() {
             console.log("getText");
             fetch("http://localhost:1109/getText", {
                 method: 'GET'
             }).then(res => res.json().then(data => {
-                document.getElementById('textArea1').value = data;
+                document.getElementById('textArea1').value = data.content;
+                lastText = document.getElementById('textArea1').value
             }))
         }
 
@@ -36,11 +59,15 @@
             };
             fetch("http://localhost:1109/submit", {
                 method: 'POST',
-                body: JSON.stringify(data),
+                body: JSON.stringify(steps),
                 headers: new Headers({
                     'Content-type': 'application/json'
                 })
-            }).then(res => console.log(res))
+            }).then(res => {
+                console.log(res);
+                steps = new Object();
+                steps.action = new Array();
+            })
         }
     </script>
 </body>

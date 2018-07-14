@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <script>
+        // function compare() {
+        //     var newText = document.getElementById("textArea1").value;
+        //     var re = new RegExp("[^" + lastText + "]|[^" + newText + "]", "g");
+        //     var arr = new Array;
+        //     var i = 0;
+        //     for (arr[0] = re.exec(lastText + newText); arr[i] != null;) {
+        //         i++;
+        //         arr[i] = re.exec(lastText + newText);
+        //     }
+        //     console.log(arr);
+        //     arr.forEach(element => {
+        //         if (element != null) {
+        //             if (element.index > lastText.length) {
+        //                 console.log("在第" + (element.index - lastText.length) + "个字符前插入" + element[0])
+        //             } else {
+        //                 console.log("删除第" + element.index + "个字符");
+        //             }
+        //         }
+
+        //     });
+        //     lastText = newText;
+        // }
+    </script>
+</head>
+
+<body>
+    <textarea id="textArea"></textarea>
+    <script>
+        // var string = "0123456";
+        // console.log(string.slice(0, 3));
+        // String.prototype.insert = function (index, content) {
+        //     return this.slice(0, index) + content + this.slice(index);
+        // }
+        // console.log(string.insert(2, "qq"));
+
+
+        // document.getElementById("textArea").onselect = (e) => {
+        //     console.log(e);
+        //     console.log(document.getElementById("textArea").selectionStart + " " + document.getElementById(
+        //         "textArea").selectionEnd)
+        // }
+        var steps = new Array();
+        document.getElementById("textArea").oninput = (e) => {
+            console.log(e);
+            //console.log(JSON.parse(e));
+            console.log(e.inputType + e.data + "before " + (document.getElementById("textArea").selectionStart));
+            steps.push({
+                type: e.inputType,
+                index: document.getElementById("textArea").selectionStart,
+                content: e.data
+            })
+            console.log(steps);
+        }
+
+        function follow(a1, a2) {
+
+        }
+    </script>
+</body>
+
+</html>
