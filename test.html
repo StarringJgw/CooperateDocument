@@ -2,64 +2,144 @@
 <html>
 
 <head>
-
-    <script>
-        // function compare() {
-        //     var newText = document.getElementById("textArea1").value;
-        //     var re = new RegExp("[^" + lastText + "]|[^" + newText + "]", "g");
-        //     var arr = new Array;
-        //     var i = 0;
-        //     for (arr[0] = re.exec(lastText + newText); arr[i] != null;) {
-        //         i++;
-        //         arr[i] = re.exec(lastText + newText);
-        //     }
-        //     console.log(arr);
-        //     arr.forEach(element => {
-        //         if (element != null) {
-        //             if (element.index > lastText.length) {
-        //                 console.log("在第" + (element.index - lastText.length) + "个字符前插入" + element[0])
-        //             } else {
-        //                 console.log("删除第" + element.index + "个字符");
-        //             }
-        //         }
-
-        //     });
-        //     lastText = newText;
-        // }
-    </script>
+    <style>
+        textarea {
+            width: 50vw;
+            height: 50vh;
+        }
+    </style>
 </head>
 
+
 <body>
-    <textarea id="textArea"></textarea>
+    <h1>text</h1>
+    <button id="getText">getText</button>
+    <button id="submit">submit</button>
+    <textarea id="textArea1"></textarea>
     <script>
-        // var string = "0123456";
-        // console.log(string.slice(0, 3));
-        // String.prototype.insert = function (index, content) {
-        //     return this.slice(0, index) + content + this.slice(index);
-        // }
-        // console.log(string.insert(2, "qq"));
+        document.getElementById("getText").addEventListener("click", getText, false);
+        document.getElementById("submit").addEventListener("click", submit, false);
+        var set1, set2;
+        var steps = new Object();
+        steps.action = new Array();
+        getText();
+        //setInterval(up, 1000);
 
-
-        // document.getElementById("textArea").onselect = (e) => {
-        //     console.log(e);
-        //     console.log(document.getElementById("textArea").selectionStart + " " + document.getElementById(
-        //         "textArea").selectionEnd)
-        // }
-        var steps = new Array();
-        document.getElementById("textArea").oninput = (e) => {
-            console.log(e);
-            //console.log(JSON.parse(e));
-            console.log(e.inputType + e.data + "before " + (document.getElementById("textArea").selectionStart));
-            steps.push({
-                type: e.inputType,
-                index: document.getElementById("textArea").selectionStart,
-                content: e.data
-            })
-            console.log(steps);
+        async function up() {
+            await submit();
         }
 
-        function follow(a1, a2) {
+        function note() {
+            console.log("oninput");
+        }
+        Object.prototype.followSet = function (changeSet2) {
+            changeSet2.action.forEach(step2 => {
+                this.followChain(step2);
+            });
+        }
 
+        Object.prototype.followChain = function (step2) {
+            //this.action = this.action.map(i => 1);
+            this.action = this.action.map(step1 => {
+                var temp1, temp2;
+                temp1 = followStep(step1, step2); //左
+                temp2 = followStep(step2, step1); //右
+                step1 = temp2;
+                step2 = temp1;
+                return step1;
+            });
+        }
+        //传入两个元操作对象
+        function followStep(step1, step2) {
+            if (step1 === null || step2 === null) {
+                return step2;
+            } else if (step1.type === "i" && step2.type === "i") {
+                if (step1.index <= step2.index) {
+                    step2.index++;
+                } else {
+
+                }
+                return step2;
+            } else if (step1.type === "d" && step2.type === "d") {
+                if (step1.index < step2.index) {
+                    step2.index--;
+                } else if (step1.index > step2.index) {
+
+                } else {
+                    step2 = null;
+                }
+                return step2;
+            } else if (step1.type === "d" && step2.type === "i") {
+                if (step1.index < step2.index) {
+                    step2.index--;
+                } else {
+
+                }
+                return step2;
+            } else if (step1.type === "i" && step2.type === "d") {
+                if (step1.index <= step2.index) {
+                    step2.index++;
+                } else {
+
+                }
+                return step2;
+            }
+            //返回一个转化过 先step1 再step2 的元操作
+        }
+        document.getElementById("textArea1").oninput = (e) => {
+            console.log(e);
+            console.log(e.inputType + e.data + "before " + (document.getElementById("textArea1").selectionStart));
+            steps.action.push({
+                type: e.inputType.slice(0, 1),
+                index: document.getElementById("textArea1").selectionStart,
+                content: e.data
+            });
+            //console.log(steps);
+        }
+
+        function getText() {
+            console.log("getText");
+            fetch("http://localhost:1109/getText", {
+                method: 'GET'
+            }).then(res => res.json().then(data => {
+                document.getElementById('textArea1').value = data.content;
+                lastText = document.getElementById('textArea1').value
+            }))
+        }
+        var count = 0;
+
+        function submit() {
+            if (count % 2 == 0) {
+                set1 = steps;
+                console.log(set1);
+                steps = new Object();
+                steps.action = new Array();
+                getText();
+            } else {
+                set2 = steps;
+                console.log(set2);
+                set1.followSet(set2);
+                //得到先set2再set1对应的set1'
+                console.log(set1);
+                steps = new Object();
+                steps.action = new Array();
+            }
+            count++;
+            var data = {
+                content: document.getElementById("textArea1").value,
+            };
+            steps.action = steps.action.concat(set1, set2);
+            fetch("http://localhost:1109/submit", {
+                method: 'POST',
+                body: JSON.stringify(steps),
+                headers: new Headers({
+                    'Content-type': 'application/json'
+                })
+            }).then(res => {
+                console.log(res);
+                steps = new Object();
+                steps.action = new Array();
+            })
         }
     </script>
 </body>

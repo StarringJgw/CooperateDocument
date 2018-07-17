@@ -21,8 +21,9 @@
         document.getElementById("submit").addEventListener("click", submit, false);
         var steps = new Object();
         steps.action = new Array();
+        var current;
         getText();
-        setInterval(up, 1000);
+        //setInterval(up, 1000);
 
         async function up() {
             await submit();
@@ -48,15 +49,17 @@
             fetch("http://localhost:1109/getText", {
                 method: 'GET'
             }).then(res => res.json().then(data => {
-                document.getElementById('textArea1').value = data.content;
+                current = data
+                document.getElementById('textArea1').value = current.text;
                 lastText = document.getElementById('textArea1').value
             }))
         }
 
         function submit() {
-            var data = {
-                content: document.getElementById("textArea1").value,
-            };
+            // var data = {
+            //     content: document.getElementById("textArea1").value,
+            // };
+            steps.version = current.version;
             fetch("http://localhost:1109/submit", {
                 method: 'POST',
                 body: JSON.stringify(steps),
