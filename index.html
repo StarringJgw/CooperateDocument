@@ -23,11 +23,7 @@
         steps.action = new Array();
         var current;
         getText();
-        //setInterval(up, 1000);
-
-        async function up() {
-            await submit();
-        }
+        setInterval(submit, 2000);
 
         function note() {
             console.log("oninput");
@@ -59,18 +55,24 @@
             // var data = {
             //     content: document.getElementById("textArea1").value,
             // };
-            steps.version = current.version;
-            fetch("http://localhost:1109/submit", {
-                method: 'POST',
-                body: JSON.stringify(steps),
-                headers: new Headers({
-                    'Content-type': 'application/json'
+            if (steps.action.length > 0) {
+                steps.version = current.version;
+                fetch("http://localhost:1109/submit", {
+                    method: 'POST',
+                    body: JSON.stringify(steps),
+                    headers: new Headers({
+                        'Content-type': 'application/json'
+                    })
+                }).then(res => {
+                    console.log(res);
+                    steps = new Object();
+                    steps.action = new Array();
+                    getText();
                 })
-            }).then(res => {
-                console.log(res);
-                steps = new Object();
-                steps.action = new Array();
-            })
+            } else {
+                getText();
+            }
+
         }
     </script>
 </body>
