@@ -1,0 +1,82 @@
+.CodeMirror {
+  font-family: "Consolas", "Microsoft YaHei", Courier, monospace;
+  height: 100%;
+}
+
+.users-cursors {
+  width: 0;
+  position: relative;
+  &:before {
+    content: "";
+    display: block;
+    width: 2px;
+    height: 100%;
+    position: absolute;
+    background-color: inherit;
+    top: 0;
+    left: 0;
+  }
+}
+
+.codemirror-wrapper,
+.preview-wrapper {
+  *::-webkit-scrollbar {
+    width: 10px;
+    opacity: 0.6;
+    outline: none;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: #666;
+    border-radius: 20px;
+    opacity: 0.6;
+    outline: none;
+  }
+
+  *::-webkit-scrollbar-track {
+    // background: #ddd;
+    border-radius: 20px;
+    opacity: 0.6;
+    outline: none;
+  }
+
+  *::-webkit-scrollbar:horizontal {
+    height: 10px;
+    outline: none;
+  }
+}
+
+.CodeMirror {
+  .CodeMirror-scrollbar-filler {
+    opacity: 0;
+  }
+}
+
+.preview-area {
+  color: #fff;
+  img {
+    max-width: 100%;
+  }
+  pre {
+    code {
+      font-family: "Consolas", "Microsoft YaHei", Courier, monospace;
+    }
+    // background-color: #222;
+    // padding: 8px 4px;
+  }
+
+  blockquote {
+    color: #9da2a6;
+    position: relative;
+    &:before {
+      content: "";
+      display: block;
+      position: absolute;
+      left: -40px;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      background-color: #9da2a6;
+    }
+  }
+}

@@ -9,7 +9,10 @@
             "type": "node",
             "request": "launch",
             "name": "Start Server",
-            "program": "${workspaceFolder}/Server.js"
+            "program": "${workspaceFolder}/Server.mjs",
+            "runtimeArgs": [
+                "--experimental-modules"
+            ],
         },
         {
             "type": "node",

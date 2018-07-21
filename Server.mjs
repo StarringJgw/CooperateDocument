@@ -1,16 +1,18 @@
-var express = require("express");
-var fs = require("fs");
+import express from "express";
+import fs from "fs";
+import bodyParser from "body-parser";
+import mysql from "mysql";
+import path from "path";
 var app = express();
-var bodyParser = require("body-parser");
-var mysql = require("mysql");
 var connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '12345',
-    port: '3306',
-    database: 'cooperatedocument',
+    host: "localhost",
+    user: "root",
+    password: "12345",
+    port: "3306",
+    database: "cooperatedocument",
     multipleStatements: true
 });
+var __dirname = path.resolve();
 String.prototype.insert = function (index, content) {
     return this.slice(0, index - 1) + content + this.slice(index - 1);
 };
@@ -62,33 +64,54 @@ function followStep(step1, step2) {
 //返回一个转化过 先step1 再step2 的元操作
 function initText(name) {
     connection.connect();
-    connection.query('show tables like \'' + name + '\' ;', function (error, result) {
+    connection.query("show tables like '" + name + "' ;", function (
+        error,
+        result
+    ) {
         if (error) throw error;
         var x = new Array();
         x[0] = new Object();
         if (result.length === 0) {
-
-            fs.readFile('./' + name + '.txt', "utf-8", function (err, data) {
+            fs.readFile("./" + name + ".txt", "utf-8", function (err, data) {
                 x[0].version = 0;
                 x[0].text = data;
-                var createSql = "CREATE TABLE \`" + name + "\` (\`version\`int NOT NULL,\`text\`text NULL,\`changeset\`text NULL) ;";
-                connection.query(createSql + 'insert into ' + name + ' (version,text) values (0,\"' + data + '\");', function (error, result) {
-                    if (error) throw error
-                    console.log(result);
-
-                })
+                var createSql =
+                    "CREATE TABLE `" +
+                    name +
+                    "` (`version`int NOT NULL,`text`text NULL,`changeset`text NULL) ;";
+                connection.query(
+                    createSql +
+                    "insert into " +
+                    name +
+                    ' (version,text) values (0,"' +
+                    data +
+                    '");',
+                    function (error, result) {
+                        if (error) throw error;
+                        console.log(result);
+                    }
+                );
             });
         } else {
-            connection.query('select * from ' + name + ' where version =(select max(version) from ' + name + ');', function (error, result) {
-                x[0].version = result[0].version;
-                x[0].text = result[0].text;
-                x[0].changeSet = result[0].changeSet;
-            })
+            connection.query(
+                "select * from " +
+                name +
+                " where version =(select max(version) from " +
+                name +
+                ");",
+                function (error, result) {
+                    x[0].version = result[0].version;
+                    x[0].text = result[0].text;
+                    x[0].changeSet = result[0].changeSet;
+                }
+            );
         }
         test = x;
-    })
+    });
 }
-name = "test1";
+var name = "test1";
+var test;
+
 initText(name);
 app.use(bodyParser.json());
 app.listen(1109);
@@ -114,7 +137,6 @@ function apply(base, changeSet) {
         if (element.type === "d") {
             base = base.slice(0, element.index) + base.slice(element.index + 1);
         }
-
     });
     console.log(base);
     return base;
@@ -133,17 +155,27 @@ app.post("/submit", function (req, res) {
         }
 
         var next = {
-            "version": test[test.length - 1].version + 1,
-            "text": apply(test[test.length - 1].text, req.body),
-            "changeSet": req.body,
+            version: test[test.length - 1].version + 1,
+            text: apply(test[test.length - 1].text, req.body),
+            changeSet: req.body
         };
         test.push(next);
-        connection.query('insert into ' + name + ' (version,text,changeset) values (' + next.version + ',\"' + next.text + '\",\'' + JSON.stringify(next.changeSet) + '\');', function (error, result) {
-            if (error) throw error;
-            console.log(result);
-        })
+        connection.query(
+            "insert into " +
+            name +
+            " (version,text,changeset) values (" +
+            next.version +
+            ',"' +
+            next.text +
+            "\",'" +
+            JSON.stringify(next.changeSet) +
+            "');",
+            function (error, result) {
+                if (error) throw error;
+                console.log(result);
+            }
+        );
         console.log(test);
     }
     res.send("ok");
-
 });
